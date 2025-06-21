@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ hứng trái tim 💗</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: sans-serif;
+      background: #ffe0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      padding: 10px;
+    }
+    h1 {
+      margin: 10px 0;
+      color: #e91e63;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      text-align: center;
+    }
+    #scoreboard {
+      margin: 5px 0;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      color: #d81b60;
+      text-align: center;
+    }
+    #game {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      height: calc(100vh - 200px);
+      background: #fff0f6;
+      border: 3px solid #e91e63;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+      display: none;
+    }
+    #basket {
+      position: absolute;
+      bottom: 10px;
+      width: clamp(60px, 15vw, 80px);
+      height: clamp(30px, 8vw, 40px);
+      background: #ff69b4;
+      border-radius: 10px;
+    }
+    .item {
+      position: absolute;
+      width: clamp(20px, 6vw, 30px);
+      height: clamp(20px, 6vw, 30px);
+      top: 0;
+      font-size: clamp(16px, 5vw, 24px);
+      text-align: center;
+    }
+    #controls {
+      display: flex;
+      justify-content: center;
+      gap: clamp(20px, 5vw, 40px);
+      margin: 10px 0;
+      width: 100%;
+      max-width: 500px;
+      display: none;
+      padding: 0 10px;
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+    }
+    .btn {
+      padding: clamp(10px, 3vw, 15px) clamp(15px, 5vw, 25px);
+      font-size: clamp(16px, 4vw, 20px);
+      background: #ffb6c1;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 4px #d81b60;
+      touch-action: manipulation;
+      flex: 1;
+      max-width: 200px;
+    }
+    .btn:active {
+      box-shadow: none;
+      transform: translateY(4px);
+    }
+    #fireworks {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: none;
+    }
+    #winMessage {
+      position: absolute;
+      top: 40%;
+      width: 100%;
+      text-align: center;
+      font-size: clamp(16px, 5vw, 24px);
+      font-weight: bold;
+      color: #e91e63;
+      background: rgba(255,255,255,0.8);
+      padding: 20px;
+      border-radius: 12px;
+      display: none;
+    }
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffe0f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 10px;
+    }
+    .screen h2 {
+      font-size: clamp(18px, 5vw, 26px);
+      color: #e91e63;
+      margin-bottom: 20px;
+      text-align: center;
+      padding: 0 10px;
+    }
+    .screen div {
+      display: flex;
+      gap: clamp(20px, 5vw, 30px);
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 500px;
+      padding: 0 10px;
+    }
+    #windowBox {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: clamp(100px, 25vw, 150px);
+      height: clamp(100px, 25vw, 150px);
+      background-image: url('https://i.imgur.com/4yS5e4v.png');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 5;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .capybara-effect {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.5);
+    }
+    .capybara-img {
+      width: clamp(50px, 15vw, 80px);
+      height: clamp(50px, 15vw, 80px);
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .capybara-message {
+      background: rgba(255, 255, 255, 0.9);
+      color: #e91e63;
+      font-size: clamp(12px, 3vw, 14px);
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      text-align: center;
+      max-width: 90%;
+    }
+    .love-message {
+      position: absolute;
+      color: #e91e63;
+      font-size: clamp(14px, 4vw, 20px);
+      font-weight: bold;
+      text-align: center;
+      width: clamp(100px, 80%, 300px);
+      opacity: 0;
+      z-index: 10;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .final-message {
+      position: absolute;
+      color: #e91e63;
+      font-size: clamp(18px, 6vw, 28px);
+      font-weight: bold;
+      text-align: center;
+      width: clamp(120px, 90%, 400px);
+      opacity: 0;
+      z-index: 11;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .heart-effect {
+      position: absolute;
+      font-size: clamp(16px, 5vw, 24px);
+      color: #ff69b4;
+      opacity: 0;
+      z-index: 9;
+    }
+    .final-heart {
+      position: absolute;
+      font-size: clamp(20px, 6vw, 30px);
+      color: #ff69b4;
+      opacity: 0;
+      z-index: 9;
+    }
+    /* Responsive cho điện thoại */
+    @media (max-width: 600px) {
+      body { padding: 5px; }
+      #game { max-width: 100%; height: calc(100vh - 180px); }
+      #controls { gap: clamp(10px, 3vw, 20px); bottom: 5px; }
+      .btn { padding: clamp(8px, 2.5vw, 12px) clamp(10px, 4vw, 20px); }
+      #windowBox { top: 5px; }
+      .love-message {
+        font-size: clamp(12px, 4vw, 16px);
+        width: clamp(80px, 90%, 250px);
+      }
+      .heart-effect {
+        font-size: clamp(14px, 5vw, 20px);
+      }
+      .final-message {
+        font-size: clamp(16px, 5vw, 24px);
+        width: clamp(100px, 90%, 300px);
+      }
+      .final-heart {
+        font-size: clamp(18px, 5vw, 26px);
+      }
+    }
+    /* Responsive cho tablet */
+    @media (min-width: 601px) and (max-width: 1024px) {
+      #game { max-width: 80%; height: calc(100vh - 220px); }
+      #windowBox { width: clamp(120px, 20vw, 150px); height: clamp(120px, 20vw, 150px); top: 10px; }
+      .btn { max-width: 250px; }
+      .love-message {
+        font-size: clamp(14px, 4vw, 18px);
+        width: clamp(100px, 80%, 280px);
+      }
+      .heart-effect {
+        font-size: clamp(16px, 5vw, 22px);
+      }
+      .final-message {
+        font-size: clamp(18px, 5vw, 26px);
+        width: clamp(120px, 80%, 350px);
+      }
+      .final-heart {
+        font-size: clamp(20px, 5vw, 28px);
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="questionScreen1" class="screen">
+  <h2>💬 Em có muốn tôi gọi em là <strong>Em bé</strong> không? 💕</h2>
+  <div>
+    <button id="yesBtn1" class="btn">Có 🥰</button>
+    <button id="noBtn1" class="btn">Không ❌</button>
+  </div>
+</div>
+
+<div id="noResponseScreen" class="screen" style="display: none;">
+  <h2>💬 em làm anh tổn thương rồi 😢</h2>
+  <div>
+    <button id="continueFromNo" class="btn">Tiếp tục ➡️</button>
+  </div>
+</div>
+
+<div id="yesResponseScreen" class="screen" style="display: none;">
+  <h2>💬 Yeeee 🥰</h2>
+  <div>
+    <button id="continueFromYes" class="btn">Tiếp tục ➡️</button>
+  </div>
+</div>
+
+<div id="questionScreen2" class="screen" style="display: none;">
+  <h2>💬 Vậy em iu cũng phải gọi tôi là <strong>Anh yêu</strong> nhé? 💕</h2>
+  <div>
+    <button id="yesBtn2" class="btn">Có 😘</button>
+  </div>
+</div>
+
+<div id="messageScreen" class="screen" style="display: none;">
+  <h2>💬 Muốn nhận quà thì phải vượt qua trò chơi này nhé! 💕</h2>
+  <div>
+    <button id="startGameBtn" class="btn">Bắt đầu 🎮</button>
+  </div>
+</div>
+
+<h1>trò chơi cho bé 💗</h1>
+<div id="scoreboard">Điểm: 0 | Máu: 3</div>
+<div id="game">
+  <div id="basket"></div>
+  <canvas id="fireworks"></canvas>
+  <div id="winMessage">🎉
+
+System: Giỏi vậy ta, vượt qua rồi nè! 🎉</div>
+  <div id="windowBox"></div>
+</div>
+
+<div id="controls">
+  <button class="btn" id="leftBtn">← Trái</button>
+  <button class="btn" id="rightBtn">Phải →</button>
+</div>
+
+<script>
+  const game = document.getElementById("game");
+  const basket = document.getElementById("basket");
+  const scoreboard = document.getElementById("scoreboard");
+  const fireworks = document.getElementById("fireworks");
+  const winMessage = document.getElementById("winMessage");
+  const windowBox = document.getElementById("windowBox");
+  const questionScreen1 = document.getElementById("questionScreen1");
+  const noResponseScreen = document.getElementById("noResponseScreen");
+  const yesResponseScreen = document.getElementById("yesResponseScreen");
+  const questionScreen2 = document.getElementById("questionScreen2");
+  const messageScreen = document.getElementById("messageScreen");
+  const yesBtn1 = document.getElementById("yesBtn1");
+  const noBtn1 = document.getElementById("noBtn1");
+  const continueFromNo = document.getElementById("continueFromNo");
+  const continueFromYes = document.getElementById("continueFromYes");
+  const yesBtn2 = document.getElementById("yesBtn2");
+  const startGameBtn = document.getElementById("startGameBtn");
+  const controls = document.getElementById("controls");
+
+  let basketX = (game.clientWidth - 80) / 2;
+  let score = 0;
+  let health = 3;
+  let gameInterval;
+  let keys = { left: false, right: false };
+
+  fireworks.width = game.clientWidth;
+  fireworks.height = game.clientHeight;
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") keys.left = true;
+    if (e.key === "ArrowRight") keys.right = true;
+  });
+  document.addEventListener("keyup", e => {
+    if (e.key === "ArrowLeft") keys.left = false;
+    if (e.key === "ArrowRight") keys.right = false;
+  });
+
+  const leftBtn = document.getElementById("leftBtn");
+  const rightBtn = document.getElementById("rightBtn");
+
+  leftBtn.addEventListener("mousedown", () => keys.left = true);
+  leftBtn.addEventListener("mouseup", () => keys.left = false);
+  leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); keys.left = true; });
+  leftBtn.addEventListener("touchend", () => keys.left = false);
+
+  rightBtn.addEventListener("mousedown", () => keys.right = true);
+  rightBtn.addEventListener("mouseup", () => keys.right = false);
+  rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); keys.right = true; });
+  rightBtn.addEventListener("touchend", () => keys.right = false);
+
+  function updateBasket() {
+    if (keys.left) basketX -= 4;
+    if (keys.right) basketX += 4;
+    basketX = Math.max(0, Math.min(game.clientWidth - basket.clientWidth, basketX));
+    basket.style.left = basketX + "px";
+    requestAnimationFrame(updateBasket);
+  }
+
+  function createItem() {
+    const item = document.createElement("div");
+    item.classList.add("item");
+
+    const isHeart = Math.random() > 0.3;
+    item.innerText = isHeart ? "💖" : "🥚";
+    item.dataset.type = isHeart ? "heart" : "egg";
+
+    item.style.left = Math.floor(Math.random() * (game.clientWidth - item.clientWidth)) + "px";
+    game.appendChild(item);
+
+    let y = 0;
+    const speed = 1.3 + Math.random() * 0.5;
+
+    function fall() {
+      y += speed;
+      item.style.top = y + "px";
+
+      const itemX = parseInt(item.style.left);
+      if (
+        y + item.clientHeight >= game.clientHeight - 50 &&
+        itemX + item.clientWidth >= basketX &&
+        itemX <= basketX + basket.clientWidth
+      ) {
+        if (item.dataset.type === "heart") {
+          score++;
+          showCapybaraEffect(true);
+        } else {
+          health--;
+          showCapybaraEffect(false);
+        }
+        updateScore();
+        item.remove();
+        checkEnd();
+        return;
+      }
+
+      if (y > game.clientHeight) {
+        item.remove();
+        return;
+      }
+
+      requestAnimationFrame(fall);
+    }
+
+    requestAnimationFrame(fall);
+  }
+
+  function updateScore() {
+    scoreboard.innerText = `Điểm: ${score} | Máu: ${health}`;
+  }
+
+  function checkEnd() {
+    if (score >= 10) {
+      showVictory();
+      clearInterval(gameInterval);
+    } else if (health <= 0) {
+      alert("💥 Bạn đã thua! Hết máu!");
+      location.reload();
+    }
+  }
+
+  function showCapybaraEffect(isSuccess) {
+    while (windowBox.firstChild) {
+      windowBox.removeChild(windowBox.firstChild);
+    }
+
+    const effectDiv = document.createElement("div");
+    effectDiv.classList.add("capybara-effect");
+
+    const messages = isSuccess
+      ? ["Hay quá! Ngầu quá! Đỉnh quá!"]
+      : ["Ôi không! Hỏng rồi!", "Cố lên nào!", "Sai rồi, thử lại nhé!"];
+    const message = messages[Math.floor(Math.random() * messages.length)];
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("capybara-message");
+    messageDiv.innerText = message;
+
+    const capybaraImg = document.createElement("img");
+    capybaraImg.classList.add("capybara-img");
+    capybaraImg.src = isSuccess
+      ? "https://url.spa/8jzqy"
+      : "https://url.spa/8jzqy";
+
+    effectDiv.appendChild(messageDiv);
+    effectDiv.appendChild(capybaraImg);
+
+    windowBox.appendChild(effectDiv);
+
+    setTimeout(() => {
+      effectDiv.remove();
+    }, 2000);
+  }
+
+  yesBtn1.addEventListener("click", () => {
+    questionScreen1.style.display = "none";
+    yesResponseScreen.style.display = "flex";
+  });
+
+  noBtn1.addEventListener("click", () => {
+    questionScreen1.style.display = "none";
+    noResponseScreen.style.display = "flex";
+  });
+
+  continueFromNo.addEventListener("click", () => {
+    noResponseScreen.style.display = "none";
+    questionScreen2.style.display = "flex";
+  });
+
+  continueFromYes.addEventListener("click", () => {
+    yesResponseScreen.style.display = "none";
+    questionScreen2.style.display = "flex";
+  });
+
+  yesBtn2.addEventListener("click", () => {
+    questionScreen2.style.display = "none";
+    messageScreen.style.display = "flex";
+  });
+
+  startGameBtn.addEventListener("click", () => {
+    messageScreen.style.display = "none";
+    game.style.display = "block";
+    controls.style.display = "flex";
+    basket.style.left = basketX + "px";
+    updateBasket();
+    gameInterval = setInterval(createItem, 1200);
+  });
+
+  const ctx = fireworks.getContext("2d");
+  let particles = [];
+
+  function showVictory() {
+    fireworks.style.display = "block";
+    winMessage.style.display = "block";
+    animateFireworks();
+
+    setTimeout(() => {
+      winMessage.innerText = "🎁 Anh có vài lời muốn nói với em nè! 🎁";
+    }, 3000);
+
+    setTimeout(() => {
+      game.style.display = "none";
+      controls.style.display = "none";
+      fireworks.style.display = "none";
+      winMessage.style.display = "none";
+      scoreboard.style.display = "none";
+      document.querySelector("h1").style.display = "none";
+      showLoveMessages();
+    }, 6000);
+  }
+
+  function animateFireworks() {
+    ctx.clearRect(0, 0, game.clientWidth, game.clientHeight);
+    particles.forEach(p => {
+      p.x += p.dx;
+      p.y += p.dy;
+      p.dy += 0.1;
+      p.life--;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    particles = particles.filter(p => p.life > 0);
+    if (particles.length > 0) {
+      requestAnimationFrame(animateFireworks);
+    }
+  }
+
+  function showLoveMessages() {
+    const messages = [
+      "Anh yêu em 💕",
+      "Thương em nhiều lắm 😘",
+      "Mong những điều tốt đẹp nhất sẽ đến với em 🌟",
+      "Em là tất cả của anh ❤️",
+      "Anh luôn ở đây vì em 🥰",
+      "Em là ánh sáng của đời anh ✨",
+      "Yêu em mãi mãi 💖",
+      "Em là món quà quý giá nhất 🎁",
+      "Anh chỉ muốn em hạnh phúc 😊",
+      "Bên em là niềm vui lớn nhất của anh 💞",
+      "mãi bên anh em nhé"
+    ];
+
+    function createLoveMessage() {
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("love-message");
+      messageDiv.innerText = messages[Math.floor(Math.random() * messages.length)];
+      const messageWidth = Math.min(300, window.innerWidth * 0.8);
+      const maxLeft = window.innerWidth - messageWidth;
+      const randomLeft = Math.random() * maxLeft;
+      messageDiv.style.left = randomLeft + "px";
+      messageDiv.style.top = window.innerHeight + "px";
+      document.body.appendChild(messageDiv);
+
+      const heart = document.createElement("div");
+      heart.classList.add("heart-effect");
+      heart.innerText = "💖";
+      const heartOffset = Math.min(30, window.innerWidth * 0.1);
+      heart.style.left = (randomLeft + messageWidth / 2 + heartOffset) + "px";
+      heart.style.top = (window.innerHeight - 20) + "px";
+      document.body.appendChild(heart);
+
+      let y = window.innerHeight;
+      function animateMessage() {
+        y -= 1;
+        messageDiv.style.top = y + "px";
+        heart.style.top = (y - 20) + "px";
+        if (y < 100) {
+          messageDiv.style.opacity = y / 100;
+          heart.style.opacity = y / 100;
+        } else {
+          messageDiv.style.opacity = 1;
+          heart.style.opacity = 1;
+        }
+        if (y > 0) {
+          requestAnimationFrame(animateMessage);
+        } else {
+          messageDiv.remove();
+          heart.remove();
+        }
+      }
+      requestAnimationFrame(animateMessage);
+    }
+
+    function createFinalMessage() {
+      document.querySelectorAll(".love-message, .heart-effect").forEach(el => el.remove());
+      const finalMessageDiv = document.createElement("div");
+      finalMessageDiv.classList.add("final-message");
+      finalMessageDiv.innerText = "Anh thương em nhiều lắm 😘";
+      finalMessageDiv.style.top = window.innerHeight + "px";
+      document.body.appendChild(finalMessageDiv);
+
+      const finalHeart = document.createElement("div");
+      finalHeart.classList.add("final-heart");
+      finalHeart.innerText = "💖";
+      const messageWidth = Math.min(400, window.innerWidth * 0.9);
+      const heartOffset = Math.min(30, window.innerWidth * 0.1);
+      finalHeart.style.left = (window.innerWidth / 2 + messageWidth / 2 + heartOffset) + "px";
+      finalHeart.style.top = (window.innerHeight - 20) + "px";
+      document.body.appendChild(finalHeart);
+
+      let y = window.innerHeight;
+      function animateFinalMessage() {
+        y -= 1;
+        finalMessageDiv.style.top = y + "px";
+        finalHeart.style.top = (y - 20) + "px";
+        if (y < 100) {
+          finalMessageDiv.style.opacity = y / 100;
+          finalHeart.style.opacity = y / 100;
+        } else {
+          finalMessageDiv.style.opacity = 1;
+          finalHeart.style.opacity = 1;
+        }
+        if (y > 0) {
+          requestAnimationFrame(animateFinalMessage);
+        } else {
+          finalMessageDiv.remove();
+          finalHeart.remove();
+        }
+      }
+      requestAnimationFrame(animateFinalMessage);
+    }
+
+    const messageInterval = setInterval(createLoveMessage, 1000);
+    setTimeout(() => {
+      clearInterval(messageInterval);
+      createFinalMessage();
+      setTimeout(() => {
+        document.querySelectorAll(".final-message, .final-heart").forEach(el => el.remove());
+        location.reload();
+      }, 3000);
+    }, 19000);
+  }
+
+  window.addEventListener("resize", () => {
+    fireworks.width = game.clientWidth;
+    fireworks.height = game.clientHeight;
+    basketX = Math.max(0, Math.min(game.clientWidth - basket.clientWidth, basketX));
+    basket.style.left = basketX + "px";
+  });
+</script>
+</body>
+</html>
